@@ -11,25 +11,34 @@
 <button id="gm">Get Municipality</button>
 <button id="gs">Get Streets</button>
 <button id="pm">Post compliant</button>
+<button id="gpm">Complaints</button>
+<button id="cpm">Clear Complaints</button>
 <div id="display">
 </div>
 <script type = "text/javascript">
 var baseURL = "http://127.0.0.1:1234/";
 $("#gm").click(function(){
-	$.get(baseURL + "municipality",function(data){ alert(data.length);});
+	$.get(baseURL + "zone/1",function(data){ $("#display").text(JSON.stringify(data));});
 });
 $("#gs").click(function(){
-	$.get(baseURL + "street",function(data){ alert(data.length);});
+	$.get(baseURL + "ward/1/1",function(data){ $("#display").text(JSON.stringify(data));});
 });
 $("#pm").click(function(){
 	$.ajax(
 	{
   type: "POST",
-  url: baseURL + "compliant",
+  url: baseURL + "problem",
   data: {"UserInfo" : { "PhoneNo": "9840829911", "EmailID": "", "Name" : ""}},
   success: function(data){},
   dataType: "application/json"
 });
+});
+
+$("#gpm").click(function(){
+	$.get(baseURL + "problems",function(data){ $("#display").text(JSON.stringify(data));});
+});
+$("#cpm").click(function(){
+	$.get(baseURL + "clearproblem",function(data){ $("#display").text(JSON.stringify(data));});
 });
 </script>
 </body>

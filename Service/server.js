@@ -35,11 +35,27 @@ app.get('/ward/:did/:zid', function(req,res)
 	});
 });
 
-app.post('/compliant', function(req, res) {
+app.post('/problem', function(req, res) {
+	setResponseHeader(res);
 	// To DO Store data
-    console.log ("Data received " + req.body.UserInfo.PhoneNo);    
+	insertProblem(req.body,function(){
+		res.send("{status:'success'}");
+    });    
 });
-
+app.get('/problems', function(req,res)
+{
+	setResponseHeader(res);
+	getProblems(function(data){
+		res.send(data);
+	});
+});
+app.get('/clearproblem', function(req,res)
+{
+	setResponseHeader(res);
+	clearProblems(function(data){
+		res.send(data);
+	});
+});
 console.log('Started');
 app.listen(port);
 
@@ -49,13 +65,13 @@ function setResponseHeader(res)
 	res.contentType('application/json');
 	res.header('Access-Control-Allow-Origin', '*');
 }
+
 function logError(title, error)
 {
 	console.log("Error in " + title + " - " + error );
 }
 
-
-// Sample data provider
+// data provider
 function getZone(did, callback)
 {
 	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
@@ -126,6 +142,81 @@ function getWard(did, zid, callback)
 						});
 					}
 				});
+			}
+		});
+	}
+	});
+}
+
+function insertProblem(problem, callback)
+{
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	db.open(function(error)
+	{
+		if(error) { logError("connection",error);}
+		else
+		{
+			db.collection('problem', function(error, collection)
+			{
+			if(error) { logError("problem collection",error);}
+			else
+			{
+				collection.insert(problem);
+			}
+		});
+	}
+	});
+}
+
+function getProblems(callback)
+{
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	db.open(function(error)
+	{
+		if(error) { logError("connection",error);}
+		else
+		{
+			db.collection('problem', function(error, collection)
+			{
+			if(error) { logError("problem collection",error);}
+			else
+			{
+				collection.find(function(error, cursor)
+				{
+					if(error) { logError("find problem collection",error);}
+					else
+					{
+						cursor.toArray(function(error,data)
+						{ 
+							if(error) { logError("find problem toArray",error);}
+							else
+							{
+								callback(data);
+							}
+						});
+					}
+				});
+			}
+		});
+	}
+	});
+}
+
+function clearProblems(callback)
+{
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	db.open(function(error)
+	{
+		if(error) { logError("connection",error);}
+		else
+		{
+			db.collection('problem', function(error, collection)
+			{
+			if(error) { logError("problem collection",error);}
+			else
+			{
+			collection.remove();
+				callback("done");
 			}
 		});
 	}
