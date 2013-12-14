@@ -1,0 +1,36 @@
+<html>
+<head>
+	<title>Test Page </title>
+	<link rel = "stylesheet" href = "./common/bootstrap.min.css" />
+	<link rel = "stylesheet" href = "./common/bootstrap-theme.min.css" />
+	<script type = "text/javascript" src = "./common/jquery-1.10.2.min.js"> </script>
+	<script type = "text/javascript" src = "./common/angular.min.js"> </script>
+	<script type = "text/javascript" src = "./common/bootstrap.min.js"> </script>
+</head>
+<body>
+<button id="gm">Get Municipality</button>
+<button id="gs">Get Streets</button>
+<button id="pm">Post compliant</button>
+<div id="display">
+</div>
+<script type = "text/javascript">
+var baseURL = "http://127.0.0.1:1234/";
+$("#gm").click(function(){
+	$.get(baseURL + "municipality",function(data){ alert(data.length);});
+});
+$("#gs").click(function(){
+	$.get(baseURL + "street",function(data){ alert(data.length);});
+});
+$("#pm").click(function(){
+	$.ajax(
+	{
+  type: "POST",
+  url: baseURL + "compliant",
+  data: {"UserInfo" : { "PhoneNo": "9840829911", "EmailID": "", "Name" : ""}},
+  success: function(data){},
+  dataType: "application/json"
+});
+});
+</script>
+</body>
+</html>
