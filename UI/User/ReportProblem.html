@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Report Issue</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+        <link href="../common/bootstrap.min.css" rel="stylesheet" media="screen">
+
+        <style type="text/css">
+            label {
+                font-family:'Arial Rounded MT';
+                font-weight: bold;
+                color:purple;
+            }
+        </style>
+        <script language="Javascript" type="text/javascript">
+            function validateInfo() {
+                checkIfMandatoryInfoGiven();
+             //   alert("Your information has been successfully submitted. CMA Thanks you for you initiative..");
+            }
+
+            function checkIfMandatoryInfoGiven() {
+
+                var _streetLightId = $("#StreetLightId").val().trim();
+                var _userName = $("#Name").val().trim();
+                var _email = $("#Email").val().trim();
+                var _phone = $("#Phone").val().trim();
+                var _municipality = $("#Municipality").val().trim();
+                var _ward = $("#Ward").val().trim();
+                var _streetName = $("#StreetName").val().trim();
+                var _complaintType = $("#ComplaintType").val().trim();
+                var _additionalInfo = $("#AdditionalInfo").val().trim();
+				var _landmark = $("#LandMark").val().trim();
+
+                if (!(checkIfStreetLightIdGiven(_streetLightId) || checkIfOtherStreetLightInfoGiven(_municipality, _ward) || checkIfStreetNameIsGiven(_streetName))) {
+                    
+                    alert("Please provide the street light information.");
+                    $("#StreetLightId").focus();
+                    return false;
+                }
+
+
+
+                if (!checkIfComplaintInfoGiven(_complaintType))
+                {
+                    alert(_complaintType);
+                    alert("Please provide the complaint Type.");
+                    $("#ComplaintType").focus();
+                    return false;
+                }
+
+                $.ajax({
+                    url: "http://127.0.0.1:1234/compliant",
+                    data: {
+                        "UserInfo": { "PhoneNo": _phone, "EmailID": _email, "Name": _userName },
+                        "LightInfo": { "ID": _streetLightId, "Municipality": _municipality, "Ward": _ward, "StreetName": _streetName, "Landmark": _landmark, "Location": { "Lat": "", "Lon": "" } },
+                        "ProblemInfo": { "Type": _complaintType, "CompliantOn": "", "Attachment": "", "AdditionalInfo": _additionalInfo }
+                    },
+
+                    type: "POST",
+
+                    cache: false,
+                    dataType: "json",
+                    success: function (message) {
+
+                    },
+
+                    error: function (xhr, status) {
+                        alert("There was a error while submitting the data.")
+                    }
+
+                });
+
+                return true;
+
+
+            }
+
+
+            function checkIfComplaintInfoGiven(_complaintType)
+            {
+                
+                if (_complaintType != null && _complaintType.length > 0) return true;
+                else $("#ComplaintType").focus(); return false;
+            }
+
+            function checkIfStreetLightIdGiven(_streetLightId)
+            {
+                if ((_streetLightId != null && _streetLightId.length > 0)) return true;
+                else $("#StreetLightId").focus();  return false;
+            }
+
+            function checkIfOtherStreetLightInfoGiven(_municipality, _ward) {
+                if (_municipality != null && _ward != null && _municipality.length > 0 && _ward.length > 0) return true
+                else return false;
+            }
+
+            function checkIfStreetNameIsGiven(_streetName) {
+                if (_streetName != null && _streetName.length > 0) return true;
+                else return false;
+            }
+
+        </script>
+    </head>
+    <body>
+        <script src="../common/jquery-1.10.2.min.js"></script>
+        <script src="../common/bootstrap.min.js"></script>
+
+        <form id="StreeLightProblem" method="post"  onsubmit="return validateInfo();" >
+
+            <div id="UserInfoArea">
+                <!-- Capture User Information -->
+                <label class="formLabel" for="Name">Name</label>
+                <input id="Name" type="text" placeholder="Name...." />
+
+                <label for="Email">Email</label>
+                <input id="Email" type="email" />
+
+                <label for="Phone">Phone</label>
+                <input id="Phone" type="tel" />
+            </div>
+
+            <div id="StreeLightInfoArea">
+                <!-- Capture Street light Information -->
+                <label for="StreetLightId"  >Street Light Id</label>
+                <input id="StreetLightId" type="text" />
+
+                <label for="Municipality">Municipality</label>
+                <input id="Municipality" type="text" />
+
+                <label for="Ward">Ward</label>
+                <input id="Ward" type="text" />
+
+                <label for="StreetName">StreetName</label>
+                <input id="StreetName" type="text" />
+
+
+                <label for="LandMark">LandMark</label>
+                <input id="LandMark" type="text" />
+
+            </div>
+            <!-- Complaint Details -->
+
+            <div id="ComplaintArea">
+                <label for="ComplaintType"> Complaint Type</label>            
+                <input  id="ComplaintType" type="text" />
+
+                <label for="AdditionalInfo">Additional Information</label>
+                <input id="AdditionalInfo" type="text" />
+            </div>
+
+            <div id="ServerArea">
+                <input id="Submit" value="Submit Complaint" type="button" onclick="return validateInfo()" />
+            </div>
+        </form>
+
+    </body>
+</html>
