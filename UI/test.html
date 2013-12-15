@@ -10,9 +10,12 @@
 <body>
 <button id="gm">Get Municipality</button>
 <button id="gs">Get Streets</button>
+
+Ward Number : <input type="text" id="wid"></input>
+Problem : <input type="text" id="pt"></input>
 <button id="pm">Post compliant</button>
 <button id="gpm">Complaints</button>
-<button id="cpm">Clear Complaints</button>
+<button id="cpm" disabled>Clear Complaints</button>
 <div id="display">
 </div>
 <script type = "text/javascript">
@@ -24,18 +27,29 @@ $("#gs").click(function(){
 	$.get(baseURL + "ward/1/1",function(data){ $("#display").text(JSON.stringify(data));});
 });
 $("#pm").click(function(){
+	var wid = $("#wid").val();
+	var pt = $("#pt").val();
 	$.ajax(
 	{
   type: "POST",
   url: baseURL + "problem",
-  data: {"UserInfo" : { "PhoneNo": "9840829911", "EmailID": "", "Name" : ""}},
-  success: function(data){},
-  dataType: "application/json"
+    
+    dataType: "json",
+  crossDomain:true,
+  data: {
+	zone:"Tambaram",
+	zoneT:"தாம்பரம்",
+	ward:"Ward " + wid,
+	wardT:"வார்டு " + wid,
+	problem:pt
+},
+  success: function(data){}
+
 });
 });
 
 $("#gpm").click(function(){
-	$.get(baseURL + "problems",function(data){ $("#display").text(JSON.stringify(data));});
+	$.get(baseURL + "problems/Tambaram",function(data){ $("#display").text(JSON.stringify(data));});
 });
 $("#cpm").click(function(){
 	$.get(baseURL + "clearproblem",function(data){ $("#display").text(JSON.stringify(data));});

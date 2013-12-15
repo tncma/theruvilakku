@@ -1,0 +1,220 @@
+<html>
+<head>
+	<title>Street light issues</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel = "stylesheet" href = "../common/bootstrap.min.css" />
+	<link rel = "stylesheet" href = "../common/bootstrap-theme.min.css" />
+	<script type = "text/javascript" src = "../common/jquery-1.10.2.min.js"> </script>
+	<script type = "text/javascript" src = "../common/angular.min.js"> </script>
+	<script type = "text/javascript" src = "../common/bootstrap.min.js"> </script>
+</head>
+<body  ng-app>
+<div class="container" ng-controller="adminCtl">
+	<div class="page-header">
+		<h1><small>Subtext for header</small></h1>
+	</div>
+	<div class ="row">
+	<div class="col-sm-3">
+		<ul class="nav nav-pills nav-stacked" >
+        <li class="active">
+          <a href="#">
+            <span class="badge pull-right">{{notWorking.length}}</span>
+            <span>{{nwText()}}</span>
+          </a>
+        </li>
+       <li ng-repeat='ward in nwWards'>
+         <a href="#">
+            <span class="badge pull-right">{{ward.issues.length}}</span>
+            <span ng-if="$parent.language=='E'">{{ward.issues[0].ward}}</span>
+            <span ng-if="$parent.language=='T'">{{ward.issues[0].wardT}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-sm-3">
+		<ul class="nav nav-pills nav-stacked" >
+        <li class="active">
+          <a href="#">
+            <span class="badge pull-right">{{lessBright.length}}</span>
+            <span>{{lbText()}}</span>
+          </a>
+        </li>
+        <li ng-repeat='ward in lbWards'>
+          <a href="#">
+            <span class="badge pull-right">{{ward.issues.length}}</span>
+           <span ng-if="$parent.language=='E'">{{ward.issues[0].ward}}</span>
+            <span ng-if="$parent.language=='T'">{{ward.issues[0].wardT}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-sm-3">
+		<ul class="nav nav-pills nav-stacked" >
+        <li class="active">
+          <a href="#">
+            <span class="badge pull-right">{{soWards.length}}</span>
+            <span>{{soText()}}</span>
+          </a>
+        </li>
+        <li ng-repeat='ward in soWards'>
+          <a href="#">
+            <span class="badge pull-right">{{ward.issues.length}}</span>
+            <span ng-if="$parent.language=='E'">{{ward.issues[0].ward}}</span>
+            <span ng-if="$parent.language=='T'">{{ward.issues[0].wardT}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-sm-3">
+		<ul class="nav nav-pills nav-stacked" >
+        <li class="active">
+          <a href="#">
+            <span class="badge pull-right">{{dangerous.length}}</span>
+            <span>{{daText()}}</span>
+          </a>
+        </li>
+        <li ng-repeat='ward in daWards'>
+          <a href="#">
+            <span class="badge pull-right">{{ward.issues.length}}</span>
+            <span ng-if="$parent.language=='E'">{{ward.issues[0].ward}}</span>
+            <span ng-if="$parent.language=='T'">{{ward.issues[0].wardT}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    </div>
+</div>
+<script type = "text/javascript">
+var baseURL = "http://127.0.0.1:1234/";
+function adminCtl($scope, $http)
+{
+	$scope.language = "E";
+	$scope.selectedZone = "Tambaram";
+	$scope.notWorking = [];
+	$scope.lessBright = [];
+	$scope.switchOffOn = [];
+	$scope.dangerous = [];
+	$scope.daWards = [];
+	$scope.soWards = [];
+	$scope.lbWards = [];
+	$scope.nwWards = [];
+	$http.get(baseURL + "problems/" + $scope.selectedZone).success(
+		function(data){ 
+			angular.forEach(data,function(item)
+			{
+				if(item.problem.toLowerCase() == "nw")
+				{
+					$scope.notWorking.push(item);
+				}
+				else if(item.problem.toLowerCase() == "lb")
+				{
+					$scope.lessBright.push(item);
+				}
+				else if(item.problem.toLowerCase() == "so")
+				{
+					$scope.switchOffOn.push(item);
+				}
+				else if(item.problem.toLowerCase() == "da")
+				{
+					$scope.dangerous.push(item);
+				}
+			});
+			groupByWard($scope.dangerous,$scope.daWards);
+			groupByWard($scope.switchOffOn,$scope.soWards);
+			groupByWard($scope.lessBright,$scope.lbWards);
+			groupByWard($scope.notWorking,$scope.nwWards);
+		});
+	$scope.nwText = function()
+	{
+		return getText("nw",$scope.language);
+	}
+	$scope.lbText = function()
+	{
+		return getText("lb",$scope.language);
+	}
+	$scope.soText = function()
+	{
+		return getText("so",$scope.language);
+	}
+	$scope.daText = function()
+	{
+		return getText("da",$scope.language);
+	}
+	
+}
+function groupByWard(array, grouparray)
+{
+	angular.forEach(array, function(item)
+	{
+		var added = false;
+		angular.forEach(grouparray, function(subitem)
+		{
+			if(subitem.name == item.ward)
+			{
+				subitem.issues.push(item);
+				added = true;
+				return;
+			} 
+		});
+		if(!added)
+		{
+			var newItem = {"name":item.ward,"issues":[]};
+			newItem.issues.push(item);
+			grouparray.push(newItem);
+		}
+	});
+}
+function getText(key, lang)
+	{
+		if(key == "nw")
+		{
+			if(lang == "E")
+			{
+				return "Not working";
+			}
+			else
+			{
+				return "எரியவில்லை";
+			}
+		}
+		else if(key == "lb")
+		{
+			if(lang == "E")
+			{
+				return "Less Brightness";
+			}
+			else
+			{
+				return "வலிசம் போதவில்லை";
+			}
+		}
+		else if(key == "so")
+		{
+			if(lang == "E")
+			{
+				return "Switched off / on";
+			}
+			else
+			{
+				return "விளக்கை இயக / அணைக்க";
+			}
+		}
+		else if(key == "da")
+		{
+			if(lang == "E")
+			{
+				return "Trouble";
+			}
+			else
+			{
+				return "தோந்தரவு";
+			}
+		}
+		else 
+		{
+			return "";
+		}
+	}
+</script>
+</body>
+</html>

@@ -39,13 +39,13 @@ app.post('/problem', function(req, res) {
 	setResponseHeader(res);
 	// To DO Store data
 	insertProblem(req.body,function(){
-		res.send("{status:'success'}");
+		//res.send("{status:'success'}");
     });    
 });
-app.get('/problems', function(req,res)
+app.get('/problems/:dname', function(req,res)
 {
 	setResponseHeader(res);
-	getProblems(function(data){
+	getProblems(req.params.dname,function(data){
 		res.send(data);
 	});
 });
@@ -63,7 +63,8 @@ app.listen(port);
 function setResponseHeader(res)
 {
 	res.contentType('application/json');
-	res.header('Access-Control-Allow-Origin', '*');
+	res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With"); 
 }
 
 function logError(title, error)
@@ -74,7 +75,7 @@ function logError(title, error)
 // data provider
 function getZone(did, callback)
 {
-	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport),{safe:true});
 	db.open(function(error)
 	{
 		if(error) { logError("connection",error);}
@@ -108,7 +109,7 @@ function getZone(did, callback)
 
 function getWard(did, zid, callback)
 {
-	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport),{safe:true});
 	db.open(function(error)
 	{
 		if(error) { logError("connection",error);}
@@ -150,7 +151,7 @@ function getWard(did, zid, callback)
 
 function insertProblem(problem, callback)
 {
-	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport),{safe:true});
 	db.open(function(error)
 	{
 		if(error) { logError("connection",error);}
@@ -161,16 +162,16 @@ function insertProblem(problem, callback)
 			if(error) { logError("problem collection",error);}
 			else
 			{
-				collection.insert(problem);
+				collection.insert(problem,function(error){ if(error) {logError("problem insert",error);}});
 			}
 		});
 	}
 	});
 }
 
-function getProblems(callback)
+function getProblems(dname,callback)
 {
-	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport));
+	var db = new mongo.Db("CMA", new mongo.Server(dbhost, dbport,{}),{safe:true});
 	db.open(function(error)
 	{
 		if(error) { logError("connection",error);}
@@ -181,7 +182,7 @@ function getProblems(callback)
 			if(error) { logError("problem collection",error);}
 			else
 			{
-				collection.find(function(error, cursor)
+				collection.find({zone:dname},function(error, cursor)
 				{
 					if(error) { logError("find problem collection",error);}
 					else
